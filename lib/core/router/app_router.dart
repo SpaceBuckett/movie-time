@@ -6,7 +6,7 @@ import 'package:tentwenty_assignment/ui/screens/media_library/media_library_scre
 import 'package:tentwenty_assignment/ui/screens/more/more_screen.dart';
 import 'package:tentwenty_assignment/ui/screens/movie_details/movie_details_screen.dart';
 import 'package:tentwenty_assignment/ui/screens/root/root_screen.dart';
-import 'package:tentwenty_assignment/ui/screens/seating_map/seating_map_screen.dart';
+import 'package:tentwenty_assignment/ui/screens/seat_selection/seat_selection_screen.dart';
 import 'package:tentwenty_assignment/ui/screens/watch/watch_screen.dart';
 
 final GlobalKey<NavigatorState> _shellNavigatorKey =
