@@ -25,13 +25,17 @@ class ApiService {
     return dio;
   }
 
-  Future<Response<dynamic>?> get(
-      {required String endPoint, Map<String, dynamic>? params}) async {
+  Future<Response<dynamic>?> get({
+    required String endPoint,
+    Map<String, dynamic>? params,
+  }) async {
     params = _addApiKeyToParams(params);
     try {
       Dio dio = await launchDio();
-      final response =
-          await dio.get('$_baseUrl/$endPoint', queryParameters: params);
+      final response = await dio.get(
+        '$_baseUrl/$endPoint',
+        queryParameters: params,
+      );
       return response;
     } catch (e) {
       return null;

@@ -22,12 +22,12 @@ class GenreTileViewModel extends BaseViewModel {
     notifyListeners();
 
     var response = await _apiService.get(
-        endPoint: ApiEndPoints.genreImage,
-        params: {
-          'with_genres': genre.name,
-          'sort_by': 'popularity.desc',
-          'page': 1
-        });
+      endPoint: ApiEndPoints.genreImage,
+      params: {
+        'sort_by': 'popularity.desc',
+        'page': 1
+      },
+    );
     if (response != null) {
       var result = response.data['results'];
       print('Result: $result');
