@@ -1,36 +1,28 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:provider/provider.dart';
+import 'package:tentwenty_assignment/core/constants/base_urls.dart';
+import 'package:tentwenty_assignment/core/data_models/movie.dart';
 import 'package:tentwenty_assignment/core/router/app_routes.dart';
 import 'package:tentwenty_assignment/core/theme/colors.dart';
 import 'package:tentwenty_assignment/core/theme/font_styles.dart';
+import 'package:tentwenty_assignment/ui/screens/watch/watch_viewmodel.dart';
 
 class WatchScreen extends StatelessWidget {
   const WatchScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kScaffoldBackground,
-      appBar: _topBar(),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              ListView.builder(
-                padding: EdgeInsets.only(top: 30.h),
-                itemCount: 10,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (BuildContext context, int index) {
-                  return const MovieTile();
-                },
-              ),
-            ],
-          ),
+    return ChangeNotifierProvider(
+      create: (context) => WatchViewModel(),
+      child: Consumer<WatchViewModel>(
+        builder: (context, model, child) => Scaffold(
+          backgroundColor: kScaffoldBackground,
+          appBar: _topBar(),
+          body: const MoviesList(),
         ),
       ),
     );
@@ -72,31 +64,99 @@ class WatchScreen extends StatelessWidget {
   }
 }
 
-class MovieTile extends StatelessWidget {
-  const MovieTile({
+class MoviesList extends StatelessWidget {
+  const MoviesList({
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        GoRouter.of(context).push(AppRoutes.movieDetails);
-      },
-      child: Stack(
-        children: [
-          Container(
-            margin: EdgeInsets.only(bottom: 20.h),
-            height: 180.h,
-            width: 335.w,
-            decoration: BoxDecoration(
-              color: Colors.grey,
-              borderRadius: BorderRadius.circular(10.r),
+    return Consumer<WatchViewModel>(
+      builder: (context, model, child) => PagedListView.separated(
+        pagingController: model.moviesPagingController,
+        padding: EdgeInsets.only(left: 20.0.w, right: 20.w, top: 30.h),
+        physics: const BouncingScrollPhysics(),
+        builderDelegate: PagedChildBuilderDelegate<Movie>(
+          firstPageProgressIndicatorBuilder: (context) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Colors.blue,
+              ),
+            );
+          },
+          itemBuilder: (context, movie, index) {
+            return MovieTile(
+              movie: movie,
+            );
+          },
+          firstPageErrorIndicatorBuilder: (context) {
+            return Center(
+              child: Text(
+                "Opps, something is not right!",
+                style: kBody,
+              ),
+            );
+          },
+          noItemsFoundIndicatorBuilder: (context) => Center(
+            child: Text(
+              "Sorry, no new upcoming movies!",
+              style: kBody,
             ),
           ),
-          const ShadowOverlay(),
-          const Title(),
-        ],
+        ),
+        separatorBuilder: (context, index) => SizedBox(height: 10.h),
+      ),
+    );
+  }
+}
+
+class MovieTile extends StatelessWidget {
+  const MovieTile({
+    required this.movie,
+    super.key,
+  });
+
+  final Movie movie;
+
+  @override
+  Widget build(BuildContext context) {
+    final String imageUrl =
+        movie.backdropPath != null ? imageBaseUrl + movie.backdropPath! : '';
+    return InkWell(
+      onTap: () {
+        GoRouter.of(context).push(
+          AppRoutes.movieDetails,
+          extra: {
+            'movie': movie,
+          },
+        );
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10.r),
+        child: Stack(
+          children: [
+            Hero(
+              tag: imageUrl,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
+                fit: BoxFit.fill,
+                height: 180.h,
+                width: 335.w,
+                progressIndicatorBuilder: (context, url, progress) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: progress.progress,
+                    ),
+                  );
+                },
+              ),
+            ),
+            const ShadowOverlay(),
+            Title(
+              title: movie.originalTitle,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -134,8 +194,10 @@ class ShadowOverlay extends StatelessWidget {
 
 class Title extends StatelessWidget {
   const Title({
+    required this.title,
     super.key,
   });
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +206,7 @@ class Title extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Text(
-          'Free Guy',
+          title,
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
           style: kPoppins500s18px,
