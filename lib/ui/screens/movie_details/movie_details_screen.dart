@@ -58,7 +58,7 @@ class CustomSliverAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String imageUrl =
-        movie.backdropPath != null ? imageBaseUrl + movie.backdropPath! : '';
+        movie.backdropPath != null ? baseUrl + movie.backdropPath! : '';
     return SliverAppBar(
       pinned: false,
       snap: true,
@@ -168,7 +168,12 @@ class ReleaseDateTicketsAndTrailerButtons extends StatelessWidget {
                   CustomElevatedButton(
                     buttonTitle: 'Get Tickets',
                     onTap: () {
-                      GoRouter.of(context).push(AppRoutes.seatMapping);
+                      GoRouter.of(context).push(
+                        AppRoutes.seatMapping,
+                        extra: {
+                          'movie': movie,
+                        },
+                      );
                     },
                   ),
                   SizedBox(height: 10.h),
