@@ -1,27 +1,48 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tentwenty_assignment/core/constants/strings.dart';
+import 'package:provider/provider.dart';
+import 'package:tentwenty_assignment/core/constants/base_urls.dart';
+import 'package:tentwenty_assignment/core/data_models/genera.dart';
+import 'package:tentwenty_assignment/core/data_models/movie.dart';
 import 'package:tentwenty_assignment/core/router/app_routes.dart';
 import 'package:tentwenty_assignment/core/theme/colors.dart';
 import 'package:tentwenty_assignment/core/theme/font_styles.dart';
 import 'package:tentwenty_assignment/ui/common_widgets/custom_elevated_button.dart';
 import 'package:tentwenty_assignment/ui/common_widgets/custom_outline_button.dart';
+import 'package:tentwenty_assignment/ui/common_widgets/genere_widget.dart';
+import 'package:tentwenty_assignment/ui/common_widgets/movie_overview_widget.dart';
+import 'package:tentwenty_assignment/ui/screens/movie_details/movie_details_viewmodel.dart';
 
 class MovieDetailsScreen extends StatelessWidget {
-  const MovieDetailsScreen({super.key});
+  const MovieDetailsScreen({
+    required this.movie,
+    super.key,
+  });
+
+  final Movie movie;
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: CustomScrollView(
-        physics: BouncingScrollPhysics(),
-        slivers: [
-          CustomSliverAppBar(),
-          GeneraSection(),
-          SliverDivider(),
-          OverviewSection(),
-        ],
+    return ChangeNotifierProvider(
+      create: (context) => MovieDetailsViewModel(
+        movie: movie,
+      ),
+      child: Consumer<MovieDetailsViewModel>(
+        builder: (context, model, child) => Scaffold(
+          body: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              CustomSliverAppBar(
+                movie: movie,
+              ),
+              GeneraSection(movie: movie),
+              const SliverDivider(),
+              OverviewSection(movie: movie),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -29,11 +50,15 @@ class MovieDetailsScreen extends StatelessWidget {
 
 class CustomSliverAppBar extends StatelessWidget {
   const CustomSliverAppBar({
+    required this.movie,
     super.key,
   });
+  final Movie movie;
 
   @override
   Widget build(BuildContext context) {
+    final String imageUrl =
+        movie.backdropPath != null ? imageBaseUrl + movie.backdropPath! : '';
     return SliverAppBar(
       pinned: false,
       snap: true,
@@ -42,16 +67,27 @@ class CustomSliverAppBar extends StatelessWidget {
       expandedHeight: 466.0.h,
       flexibleSpace: Stack(
         children: [
-          Container(
-            height: 495.h,
-            color: Colors.blueAccent,
+          Hero(
+            tag: imageUrl,
+            transitionOnUserGestures: true,
+            child: CachedNetworkImage(
+              height: 495.h,
+              width: double.infinity,
+              imageUrl: imageUrl,
+              fit: BoxFit.cover,
+              progressIndicatorBuilder: (context, url, progress) {
+                return Center(
+                  child: CircularProgressIndicator(
+                    color: kBlueColor,
+                    value: progress.progress,
+                  ),
+                );
+              },
+            ),
           ),
           const ShadowOverlay(),
-          Center(
-            child: FlutterLogo(size: 400.h),
-          ),
           const BackButton(),
-          const ReleaseDateTicketsAndTrailerButtons(),
+          ReleaseDateTicketsAndTrailerButtons(movie: movie),
         ],
       ),
     );
@@ -85,38 +121,6 @@ class ShadowOverlay extends StatelessWidget {
   }
 }
 
-class OverviewSection extends StatelessWidget {
-  const OverviewSection({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 40.0.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Overview',
-              style: kPoppins500s16px.copyWith(
-                color: kDarkText,
-              ),
-            ),
-            SizedBox(height: 14.h),
-            Text(
-              dummyOverView,
-              style: kBody,
-            ),
-            SizedBox(height: 100.h),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class SliverDivider extends StatelessWidget {
   const SliverDivider({
     super.key,
@@ -135,77 +139,59 @@ class SliverDivider extends StatelessWidget {
   }
 }
 
-class GeneraSection extends StatelessWidget {
-  const GeneraSection({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: EdgeInsets.only(left: 40.0.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 27.h),
-            Text(
-              'Genres',
-              style: kPoppins500s16px.copyWith(
-                color: kDarkText,
-              ),
-            ),
-            SizedBox(height: 14.h),
-            Wrap(
-              spacing: 5.0.w,
-              runSpacing: 3.0.w,
-              children: List.generate(
-                5,
-                (index) => const GenreChip(),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class ReleaseDateTicketsAndTrailerButtons extends StatelessWidget {
   const ReleaseDateTicketsAndTrailerButtons({
+    required this.movie,
     super.key,
   });
 
+  final Movie movie;
+
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.center,
-      child: FittedBox(
-        child: Center(
-          child: Container(
-            margin: EdgeInsets.only(top: 287.h),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'In Theaters December 22, 2021',
-                  style: kPoppins500s16px,
-                ),
-                SizedBox(height: 15.h),
-                CustomElevatedButton(
-                  buttonTitle: 'Get Tickets',
-                  onTap: () {
-                    GoRouter.of(context).push(AppRoutes.seatMapping);
-                  },
-                ),
-                SizedBox(height: 10.h),
-                CustomOutlineButton(
-                  buttonTitle: 'Watch Trailer',
-                  iconUrl: 'assets/icons/play-button-icon.png',
-                  onTap: () {},
-                )
-              ],
+    return Consumer<MovieDetailsViewModel>(
+      builder: (context, model, child) => Align(
+        alignment: Alignment.center,
+        child: FittedBox(
+          child: Center(
+            child: Container(
+              margin: EdgeInsets.only(top: 287.h),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'In Theaters ${model.formatDate(movie.releaseDate)}',
+                    style: kPoppins500s16px,
+                  ),
+                  SizedBox(height: 15.h),
+                  CustomElevatedButton(
+                    buttonTitle: 'Get Tickets',
+                    onTap: () {
+                      GoRouter.of(context).push(AppRoutes.seatMapping);
+                    },
+                  ),
+                  SizedBox(height: 10.h),
+                  model.isTrailorLoading
+                      ? CircularProgressIndicator(
+                          color: kBlueColor,
+                        )
+                      : CustomOutlineButton(
+                          buttonTitle: 'Watch Trailer',
+                          iconUrl: 'assets/icons/play-button-icon.png',
+                          onTap: () {
+                            if (model.trailorKey != null) {
+                              GoRouter.of(context).push(
+                                AppRoutes.viewTrailor,
+                                extra: {
+                                  'trailorId': model.trailorKey,
+                                },
+                              );
+                            }
+                          },
+                        ),
+                ],
+              ),
             ),
           ),
         ),
@@ -249,8 +235,13 @@ class BackButton extends StatelessWidget {
 
 class GenreChip extends StatelessWidget {
   const GenreChip({
+    required this.genre,
+    required this.chipColor,
     super.key,
   });
+
+  final Genre genre;
+  final Color chipColor;
 
   @override
   Widget build(BuildContext context) {
@@ -258,10 +249,10 @@ class GenreChip extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 2.h),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.r),
-        color: const Color(0xFF15D2BC),
+        color: chipColor,
       ),
       child: Text(
-        'Action',
+        genre.name,
         style: kPoppins600s14px.copyWith(
           fontSize: 12.sp,
         ),

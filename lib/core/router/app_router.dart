@@ -5,6 +5,7 @@ import 'package:tentwenty_assignment/ui/screens/dashboard/dashboard_screen.dart'
 import 'package:tentwenty_assignment/ui/screens/media_library/media_library_screen.dart';
 import 'package:tentwenty_assignment/ui/screens/more/more_screen.dart';
 import 'package:tentwenty_assignment/ui/screens/movie_details/movie_details_screen.dart';
+import 'package:tentwenty_assignment/ui/screens/movie_details/trailer_player/trailer_player_screen.dart';
 import 'package:tentwenty_assignment/ui/screens/root/root_screen.dart';
 import 'package:tentwenty_assignment/ui/screens/seat_selection/seat_selection_screen.dart';
 import 'package:tentwenty_assignment/ui/screens/watch/watch_screen.dart';
@@ -17,12 +18,32 @@ final GoRouter router = GoRouter(
   navigatorKey: _navigatorKey,
   initialLocation: AppRoutes.root,
   routes: [
+    //     Map<String, dynamic> arg = state.extra as Map<String, dynamic>;
+
+    //   return ImageScannerScreen(
+    //     imagePath: arg['imagePath'],
+    //   );
+    // },
     GoRoute(
       path: AppRoutes.movieDetails,
       name: 'movieDetails',
       parentNavigatorKey: _navigatorKey,
       builder: (context, state) {
-        return const MovieDetailsScreen();
+        Map<String, dynamic> arg = state.extra as Map<String, dynamic>;
+        return MovieDetailsScreen(
+          movie: arg['movie'],
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.viewTrailor,
+      name: 'viewTrailor',
+      parentNavigatorKey: _navigatorKey,
+      builder: (context, state) {
+        Map<String, dynamic> arg = state.extra as Map<String, dynamic>;
+        return ViewTrailorScreen(
+          trailorId: arg['trailorId'],
+        );
       },
     ),
     GoRoute(

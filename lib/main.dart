@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tentwenty_assignment/core/router/app_router.dart';
+import 'package:tentwenty_assignment/core/utils/locator.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await setupLocator();
   runApp(const MyApp());
 }
 

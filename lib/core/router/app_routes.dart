@@ -19,4 +19,5 @@ abstract class AppRoutes {
   static const String more = '/more';
   static const String movieDetails = '/movieDetails';
   static const String seatMapping = '/seatMapping';
+  static const String viewTrailor = '/viewTrailor';
 }
