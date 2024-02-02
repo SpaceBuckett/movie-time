@@ -1,9 +1,13 @@
 import 'dart:math';
 
 import 'package:book_my_seat/book_my_seat.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:tentwenty_assignment/core/data_models/date_selection.dart';
 import 'package:tentwenty_assignment/core/data_models/hall_selection.dart';
 import 'package:tentwenty_assignment/core/data_models/seat_number.dart';
+import 'package:tentwenty_assignment/core/router/app_router.dart';
+import 'package:tentwenty_assignment/core/router/app_routes.dart';
 import 'package:tentwenty_assignment/core/utils/base_viewmodel.dart';
 
 class SeatingViewModel extends BaseViewModel {
@@ -16,6 +20,7 @@ class SeatingViewModel extends BaseViewModel {
   Date? choosenDate;
 
   bool isPaymentSheetActive = false;
+  bool isProcessingPayment = false;
 
   togglePaymentSection() {
     isPaymentSheetActive = !isPaymentSheetActive;
@@ -112,10 +117,24 @@ class SeatingViewModel extends BaseViewModel {
     }
     notifyListeners();
   }
+
+  String formatDate(DateTime date) {
+    DateFormat formatter = DateFormat('MMMM dd, yyyy');
+    return formatter.format(date);
+  }
+
+  proceedToPayment() async {
+    await dummyPaymentDelay();
+  }
+
+  dummyPaymentDelay() async {
+    isProcessingPayment = true;
+    notifyListeners();
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    isProcessingPayment = false;
+    notifyListeners();
+    GoRouter.of(getContext!).push(AppRoutes.dashboard);
+  }
 }
-
-
-
-
-//  COLUMNS: 24
-//  ROWS:    14

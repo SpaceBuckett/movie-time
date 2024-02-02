@@ -35,8 +35,6 @@ class MovieDetailsViewModel extends BaseViewModel {
       // NO GENERA COULD BE FETCHED!
     }
 
-    print('LOADED GENRES');
-
     isLoadingGenres = false;
     notifyListeners();
   }
@@ -59,16 +57,6 @@ class MovieDetailsViewModel extends BaseViewModel {
     }
     return null;
   }
-
-  // getGeneresForCurrentMovie(Movie movie) {
-  //   movie.genreIds.map((genreId) {
-  //     var genre = allGeneres.firstWhere(
-  //       (genre) => genre.id == genreId,
-  //     );
-  //     movieGenres.add(genre);
-  //   });
-  //   notifyListeners();
-  // }
 
   String formatDate(DateTime date) {
     DateFormat formatter = DateFormat('MMMM dd, yyyy');

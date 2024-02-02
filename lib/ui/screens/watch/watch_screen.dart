@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -9,6 +10,8 @@ import 'package:tentwenty_assignment/core/data_models/movie.dart';
 import 'package:tentwenty_assignment/core/router/app_routes.dart';
 import 'package:tentwenty_assignment/core/theme/colors.dart';
 import 'package:tentwenty_assignment/core/theme/font_styles.dart';
+import 'package:tentwenty_assignment/ui/common_widgets/shimmer.dart';
+import 'package:tentwenty_assignment/ui/screens/watch/genres/genres_widget.dart';
 import 'package:tentwenty_assignment/ui/screens/watch/watch_viewmodel.dart';
 
 class WatchScreen extends StatelessWidget {
@@ -21,26 +24,26 @@ class WatchScreen extends StatelessWidget {
       child: Consumer<WatchViewModel>(
         builder: (context, model, child) => Scaffold(
           backgroundColor: kScaffoldBackground,
-          appBar: _topBar(),
-          body: const MoviesList(),
+          appBar: _topBar(model),
+          body: model.showGenres ? const AllGenresView() : const MoviesList(),
         ),
       ),
     );
   }
 
-  AppBar _topBar() {
+  AppBar _topBar(WatchViewModel model) {
     return AppBar(
-      toolbarHeight: 83.h,
-      flexibleSpace: Container(
-        height: 111.h,
-        color: Colors.white,
-        child: Padding(
-          padding: EdgeInsets.only(left: 20.0.w, right: 20.w, bottom: 24.h),
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+      toolbarHeight: model.showGenres ? 100.h : 83.h,
+      surfaceTintColor: Colors.transparent,
+      automaticallyImplyLeading: false,
+      flexibleSpace: Padding(
+        padding: EdgeInsets.only(left: 20.0.w, right: 20.w, bottom: 24.h),
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (!model.showGenres)
                 Text(
                   'Watch',
                   style: TextStyle(
@@ -49,14 +52,58 @@ class WatchScreen extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                     color: const Color(0xFF202C43),
                   ),
-                ),
-                Image.asset(
-                  'assets/icons/search-icon.png',
-                  height: 36.h,
-                  width: 36.h,
-                ),
-              ],
-            ),
+                ).animate().fadeIn(),
+              model.showGenres
+                  ? Container(
+                      height: 52.h,
+                      width: 334.w,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: const Color(0xFFEFEFEF),
+                        ),
+                        color: const Color(0xFFF2F2F6),
+                        borderRadius: BorderRadius.circular(30.r),
+                      ),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            onPressed: () {},
+                            icon: Image.asset(
+                              'assets/icons/search-icon.png',
+                              height: 36.h,
+                              width: 36.h,
+                              color: Colors.black,
+                            ),
+                          ),
+                          Text(
+                            'TV shows, movies and more',
+                            style: kBody.copyWith(fontSize: 14.sp),
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            onPressed: () {
+                              model.toggleGenre();
+                            },
+                            icon: Icon(
+                              Icons.close,
+                              size: 22.w,
+                            ),
+                          )
+                        ],
+                      ),
+                    ).animate().scale()
+                  : InkWell(
+                      onTap: () {
+                        model.toggleGenre();
+                      },
+                      borderRadius: BorderRadius.circular(25.r),
+                      child: Image.asset(
+                        'assets/icons/search-icon.png',
+                        height: 36.h,
+                        width: 36.h,
+                      ),
+                    ).animate().fadeIn(),
+            ],
           ),
         ),
       ),
@@ -121,7 +168,7 @@ class MovieTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String imageUrl =
-        movie.backdropPath != null ? imageBaseUrl + movie.backdropPath! : '';
+        movie.backdropPath != null ? baseUrl + movie.backdropPath! : '';
     return InkWell(
       onTap: () {
         GoRouter.of(context).push(
@@ -143,11 +190,7 @@ class MovieTile extends StatelessWidget {
                 height: 180.h,
                 width: 335.w,
                 progressIndicatorBuilder: (context, url, progress) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: progress.progress,
-                    ),
-                  );
+                  return const Shimmer();
                 },
               ),
             ),

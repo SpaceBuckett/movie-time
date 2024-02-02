@@ -18,12 +18,6 @@ final GoRouter router = GoRouter(
   navigatorKey: _navigatorKey,
   initialLocation: AppRoutes.root,
   routes: [
-    //     Map<String, dynamic> arg = state.extra as Map<String, dynamic>;
-
-    //   return ImageScannerScreen(
-    //     imagePath: arg['imagePath'],
-    //   );
-    // },
     GoRoute(
       path: AppRoutes.movieDetails,
       name: 'movieDetails',
@@ -59,112 +53,13 @@ final GoRouter router = GoRouter(
       name: 'seatMapping',
       parentNavigatorKey: _navigatorKey,
       builder: (context, state) {
-        return const SeatingMapScreen();
+        Map<String, dynamic> arg = state.extra as Map<String, dynamic>;
+
+        return SeatingMapScreen(
+          movie: arg['movie'],
+        );
       },
     ),
-    // GoRoute(
-    //   path: AppRoutes.auth,
-    //   name: 'auth',
-    //   parentNavigatorKey: _navigatorKey,
-    //   builder: (context, state) {
-    //     return const OnBoardingAuthScreen().animate().fadeIn(
-    //           duration: 300.ms,
-    //         );
-    //   },
-    // ),
-    // // GoRoute(
-    // //   path: AppRoutes.home,
-    // //   name: 'home',
-    // //   parentNavigatorKey: _navigatorKey,
-    // //   builder: (context, state) {
-    // //     return const Home();
-    // //   },
-    // // ),
-    // // GoRoute(
-    // //   path: AppRoutes.userProfile,
-    // //   name: 'userProfile',
-    // //   parentNavigatorKey: _navigatorKey,
-    // //   builder: (context, state) {
-    // //     return const UserProfileScreen();
-    // //   },
-    // // ),
-
-    // GoRoute(
-    //   path: AppRoutes.faqs,
-    //   name: 'faqs',
-    //   parentNavigatorKey: _navigatorKey,
-    //   builder: (context, state) {
-    //     return const FAQsScreen();
-    //   },
-    // ),
-    // GoRoute(
-    //   path: AppRoutes.contacts,
-    //   name: 'contacts',
-    //   parentNavigatorKey: _navigatorKey,
-    //   builder: (context, state) {
-    //     return const ContactUsScreen();
-    //   },
-    // ),
-    // GoRoute(
-    //   path: AppRoutes.imageScanner,
-    //   name: 'imageScanner',
-    //   parentNavigatorKey: _navigatorKey,
-    //   builder: (context, state) {
-    //     Map<String, dynamic> arg = state.extra as Map<String, dynamic>;
-
-    //     return ImageScannerScreen(
-    //       imagePath: arg['imagePath'],
-    //     );
-    //   },
-    // ),
-    // GoRoute(
-    //   path: AppRoutes.details,
-    //   name: 'details',
-    //   parentNavigatorKey: _navigatorKey,
-    //   builder: (context, state) {
-    //     Map<String, dynamic> arg = state.extra as Map<String, dynamic>;
-
-    //     return DetailsScreen(
-    //       imagePath: arg['imagePath'],
-    //       yourCoral: arg['yourCarol'],
-    //     );
-    //   },
-    // ),
-    // GoRoute(
-    //   path: AppRoutes.savedCarols,
-    //   name: 'yourCarols',
-    //   parentNavigatorKey: _navigatorKey,
-    //   builder: (context, state) {
-    //     Map<String, dynamic> arg = state.extra as Map<String, dynamic>;
-
-    //     return YourCoralsScreen(
-    //       category: arg['category'],
-    //     );
-    //   },
-    // ),
-    // GoRoute(
-    //   path: AppRoutes.home,
-    //   name: 'home',
-    //   parentNavigatorKey: _navigatorKey,
-    //   builder: (context, state) => const Home(),
-    // ),
-    // GoRoute(
-    //   path: AppRoutes.root,
-    //   name: 'root',
-    //   parentNavigatorKey: _navigatorKey,
-    //   builder: (context, state) {
-    //     return const RootScreen();
-    //   },
-    // ),
-    // GoRoute(
-    //   path: AppRoutes.home,
-    //   name: 'vendorMoreInfo',
-    //   parentNavigatorKey: _navigatorKey,
-    //   builder: (context, state) {
-    //     return const HomeScreen();
-    //   },
-    // ),
-
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) {
@@ -197,18 +92,6 @@ final GoRouter router = GoRouter(
         ),
       ],
     ),
-    // GoRoute(
-    //   path: AppRoutes.orderHistoryPath,
-    //   name: 'orderHistory',
-    //   parentNavigatorKey: _shellNavigatorKey,
-    //   builder: (context, state) => OrderHistoryScreen(),
-    // ),
-    // GoRoute(
-    //   path: AppRoutes.userAccountPath,
-    //   name: 'userAccount',
-    //   parentNavigatorKey: _shellNavigatorKey,
-    //   builder: (context, state) => AccountScreen(),
-    // ),
   ],
 );
 

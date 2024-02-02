@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:tentwenty_assignment/core/data_models/date_selection.dart';
 import 'package:tentwenty_assignment/core/data_models/hall_selection.dart';
+import 'package:tentwenty_assignment/core/data_models/movie.dart';
 import 'package:tentwenty_assignment/core/router/app_router.dart';
 import 'package:tentwenty_assignment/core/theme/app_icons.dart';
 import 'package:tentwenty_assignment/core/theme/colors.dart';
@@ -14,7 +15,12 @@ import 'package:tentwenty_assignment/ui/common_widgets/custom_elevated_button.da
 import 'package:tentwenty_assignment/ui/screens/seat_selection/seat_selection_viewmodel.dart';
 
 class SeatingMapScreen extends StatelessWidget {
-  const SeatingMapScreen({super.key});
+  const SeatingMapScreen({
+    required this.movie,
+    super.key,
+  });
+
+  final Movie movie;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +29,10 @@ class SeatingMapScreen extends StatelessWidget {
       child: Consumer<SeatingViewModel>(
         builder: (context, model, child) => Scaffold(
           backgroundColor: kScaffoldBackground,
-          appBar: _topBar(),
+          appBar: _topBar(
+            movie: movie,
+            model: model,
+          ),
           body: AnimatedCrossFade(
             duration: const Duration(milliseconds: 300),
             firstChild: const CinemaHallAndTimeSelection(),
@@ -37,7 +46,7 @@ class SeatingMapScreen extends StatelessWidget {
     );
   }
 
-  AppBar _topBar() {
+  AppBar _topBar({required Movie movie, required SeatingViewModel model}) {
     return AppBar(
       toolbarHeight: 98.h,
       automaticallyImplyLeading: false,
@@ -63,7 +72,7 @@ class SeatingMapScreen extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    "The King's Man",
+                    movie.title,
                     style: kPoppins500s16px.copyWith(
                       color: kDarkText,
                     ),
@@ -75,7 +84,9 @@ class SeatingMapScreen extends StatelessWidget {
                 ],
               ),
               Text(
-                'In Theaters December 22, 2021',
+                model.isAbleToProceed()
+                    ? '${model.choosenDate?.date}, 2024 | ${model.choosenHall?.name}'
+                    : 'In Theaters ${model.formatDate(movie.releaseDate)}',
                 style: kBody500.copyWith(
                   color: kBlueColor,
                 ),
@@ -141,66 +152,86 @@ class PaymentSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 1.sh,
-      width: 1.sw,
-      color: kScaffoldBackground,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          SizedBox(height: 60.h),
-          Stack(
-            children: [
-              SvgPicture.asset(
-                AppIcons.largeScreenOverlay,
-              ),
-              Positioned(
-                top: 10.h,
-                left: 130.w,
-                right: 130.w,
-                child: Text(
-                  "SCREEN",
-                  style: kBody500.copyWith(fontSize: 8.sp),
+    return Consumer<SeatingViewModel>(
+      builder: (context, model, child) => Container(
+        height: 1.sh,
+        width: 1.sw,
+        color: kScaffoldBackground,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SizedBox(height: 60.h),
+            Stack(
+              children: [
+                SvgPicture.asset(
+                  AppIcons.largeScreenOverlay,
+                ),
+                Positioned(
+                  top: 10.h,
+                  left: 130.w,
+                  right: 130.w,
+                  child: Text(
+                    "SCREEN",
+                    style: kBody500.copyWith(fontSize: 8.sp),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 7.5.h),
+            const SelectedHallSettingView(),
+            const Spacer(),
+            Container(
+              height: 252.h,
+              width: 1.sw,
+              color: Colors.white,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 21.0.w,
+                  vertical: 26.h,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SeatIconsGuide(),
+                    SizedBox(height: 32.h),
+                    const SeatingNumberButton(),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        const PaymentButton(),
+                        const Spacer(),
+                        AnimatedCrossFade(
+                          duration: const Duration(milliseconds: 300),
+                          firstChild: CustomElevatedButton(
+                            width: 216.w,
+                            height: 50.h,
+                            buttonTitle: 'Proceed to pay',
+                            onTap: () {
+                              model.proceedToPayment();
+                            },
+                          ),
+                          secondChild: SizedBox(
+                            width: 216,
+                            height: 50.h,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: kBlueColor,
+                              ),
+                            ),
+                          ),
+                          crossFadeState: !model.isProcessingPayment
+                              ? CrossFadeState.showFirst
+                              : CrossFadeState.showSecond,
+                        ),
+                      ],
+                    )
+                  ],
                 ),
               ),
-            ],
-          ),
-          SizedBox(height: 7.5.h),
-          const SelectedHallSettingView(),
-          const Spacer(),
-          Container(
-            height: 252.h,
-            width: 1.sw,
-            color: Colors.white,
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 21.0.w,
-                vertical: 26.h,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SeatIconsGuide(),
-                  SizedBox(height: 32.h),
-                  const SeatingNumberButton(),
-                  const Spacer(),
-                  Row(
-                    children: [
-                      const PaymentButton(),
-                      const Spacer(),
-                      CustomElevatedButton(
-                        width: 216.w,
-                        buttonTitle: 'Proceed to pay',
-                        onTap: () {},
-                      )
-                    ],
-                  )
-                ],
-              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
